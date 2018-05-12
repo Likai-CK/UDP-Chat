@@ -3,53 +3,56 @@
 # Christopher Kelly
 # Christopher Corbett
 # https://pymotw.com/3/socket/multicast.html
-
 import socket
 import struct
 import sys
 
-message = b'very important data'
-multicast_group = ('224.3.29.71', 10000)
+def main():
+	username = input("Enter Nickname: ")
 
-# Create the datagram socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	
+	# THIS PART IS FULLY FUNCTIONING UDP SEND FUNCTIONS, TAILORED TO CONTACT
+	# SERVER IP DIRECTLY
+	address = "127.0.0.1"
+	port = 12000
 
-# Set a timeout so the socket does not block
-# indefinitely when trying to receive data.
-sock.settimeout(0.2)
+	client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	client_socket.settimeout(4.0)
+	addr = (address, port)
 
-# Set the time-to-live for messages to 1 so they do not
-# go past the local network segment.
-# TTL
-# 0 = restricted to same host
-# 1 = restricted to same subnet
-# 32 = restricted to same site
-# 64 = restricted to same region
-# 128 = restricted to same continent
-# 255 = unrestricted
 
-ttl = struct.pack('b', 1) # same subnet, sufficient for LAN
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+	# THIS PART IS FULLY FUNCTIONING MULTICAST RECEIPT
+	# The client will listen to the multicast group.
+	multicast_group = '224.3.29.71'
+	server_address = ('', 10000)
 
-try:
+	# Create the socket
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock.settimeout(4.0)
+	# Bind to the server address - THIS ISNT NECESSARY ON THE CLIENT!
+	sock.bind(server_address)
 
-    # Send data to the multicast group
-    print('sending {!r}'.format(message))
-    sent = sock.sendto(message, multicast_group)
+	# Tell the operating system to add the socket to
+	# the multicast group on all interfaces.
+	group = socket.inet_aton(multicast_group)
+	mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+	sock.setsockopt(
+		socket.IPPROTO_IP,
+		socket.IP_ADD_MEMBERSHIP,
+		mreq)
 
-    # Look for responses from all recipients
-    while True:
-        print('waiting to receive')
-        try:
-            data, server = sock.recvfrom(16)
-        except socket.timeout:
-            print('timed out, no more responses')
-            break
-        else:
-            print('received {!r} from {}'.format(
-                data, server))
 
-finally:
-    print('closing socket')
-    sock.close()
+	while True:
+		try:
+			message = input("msg>>").encode()
+			client_socket.sendto(message, addr) # send to server
+			data, address = sock.recvfrom(1024) # receive from multicast groupto', address)
+			sock.sendto(b'ack', address)
+			print(data)
+		except Exception as e:
+			print("Server Disconnect: " + str(e))
+	
 
+
+if __name__ == '__main__':
+	main()

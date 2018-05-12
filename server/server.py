@@ -9,33 +9,40 @@ import socket
 import struct
 import sys
 
-multicast_group = '224.3.29.71'
-server_address = ('', 10000)
 
-# Create the socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+def main():
+	
+	# THIS IS A WORKING PORTION THAT WILL HANDLE INCOMING UDP MESSAGES FROM CLIENTS.
+	port = 12000
+	
+	server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # udp socket
+	server_socket.bind(('', port)) # listen on port 
 
-# Bind to the server address
-sock.bind(server_address)
-
-# Tell the operating system to add the socket to
-# the multicast group on all interfaces.
-group = socket.inet_aton(multicast_group)
-mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-sock.setsockopt(
-    socket.IPPROTO_IP,
-    socket.IP_ADD_MEMBERSHIP,
-    mreq)
-
-# Receive/respond loop
-while True:
-    print('\nwaiting to receive message')
-    data, address = sock.recvfrom(1024)
-
-    print('received {} bytes from {}'.format(
-        len(data), address))
-    print(data)
-
-    print('sending acknowledgement to', address)
-    sock.sendto(b'ack', address)
-
+	# THIS IS A WORKING PORTION THAT WILL HANDLE OUTGOING, MULTICAST MESSAGES TO ALL CLIENTS:
+	multicast_group = ('224.3.29.71', 10000)
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	# Set a timeout so the socket does not block
+	# indefinitely when trying to receive data.
+	sock.settimeout(0.2)
+	
+	# Set the time-to-live for messages to 1 so they do not
+	# go past the local network segment.
+	ttl = struct.pack('b', 1)
+	sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+	
+	output = "Test Output" # this is what the server will output to the clients
+	print("Online.")
+	while True:
+		try:
+			message, address = server_socket.recvfrom(1024) # receive from incoming udp messages straight from clients
+			# Send data to the multicast group
+			print(str(address[0]) + ">>" + str(message))
+			#print("Sending a response to {!r}:" + output)
+			sock.sendto(output.encode(), multicast_group)
+		except Exception as e:
+			print("unexpected error: " + e)
+			
+		
+		
+if __name__ == "__main__":
+	main()

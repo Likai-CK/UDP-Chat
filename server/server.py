@@ -36,9 +36,9 @@ def main():
 		try:
 			message, address = server_socket.recvfrom(1024) # receive from incoming udp messages straight from clients
 			# Send data to the multicast group
-			print(str(address[0]) + ">>" + str(message))
+			print("[" + str(address[0]) + "] " + str(message.decode()))
 			#print("Sending a response to {!r}:" + output)
-			sock.sendto(output.encode(), multicast_group)
+			sock.sendto(message, multicast_group)
 		except Exception as e:
 			print("unexpected error: " + e)
 			

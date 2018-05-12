@@ -41,15 +41,16 @@ def main():
 		socket.IP_ADD_MEMBERSHIP,
 		mreq)
 
-	print(socket.gethostbyname_ex(socket.gethostname()))
+	#print(socket.gethostbyname_ex(socket.gethostname()))
 
 	while True:
 		try:
-			message = input("msg>>").encode()
+			message = (username + ">>" + input(username + ">>")).encode()
+			print("\033[A                             \033[A")    # ansi escape arrow up then overwrite the line
 			client_socket.sendto(message, addr) # send to server
 			data, address = sock.recvfrom(1024) # receive from multicast groupto', address)
-			sock.sendto(b'ack', address)
-			print(data)
+			#sock.sendto(b'ack', address)
+			print(data.decode())
 		except Exception as e:
 			print("Server Disconnect: " + str(e))
 	

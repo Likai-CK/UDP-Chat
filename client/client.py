@@ -8,7 +8,7 @@ import struct
 import sys
 
 def main():
-	address = input("Enter IP/hostname (empty for localhost)")
+	address = input("Enter IP/hostname (empty for localhost):\n")
 	if not address:
 		address = "127.0.0.1" # default
 	
@@ -28,7 +28,7 @@ def main():
 	# THIS PART IS FULLY FUNCTIONING MULTICAST RECEIPT
 	# The client will listen to the multicast group.
 	multicast_group = '224.3.29.71'
-	server_address = ('', 10000)
+	server_address = ('', 5007)
 
 	# Create the socket
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -50,8 +50,10 @@ def main():
 	while True:
 		try:
 			message = (username + ">>" + input(username + ">>")).encode()
-			print("\033[A                             \033[A")    # ansi escape arrow up then overwrite the line
-			client_socket.sendto(message, addr) # send to server
+			if(message):
+				print("\033[A                             \033[A")    # ansi escape arrow up then overwrite the line
+				client_socket.sendto(message, addr) # send to server
+				message = ""
 			data, address = sock.recvfrom(1024) # receive from multicast groupto', address)
 			#sock.sendto(b'ack', address)
 			print(data.decode())

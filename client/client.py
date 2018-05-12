@@ -8,12 +8,16 @@ import struct
 import sys
 
 def main():
+	address = input("Enter IP/hostname (empty for localhost)")
+	if not address:
+		address = "127.0.0.1" # default
+	
 	username = input("Enter Nickname: ")
 
 	
 	# THIS PART IS FULLY FUNCTIONING UDP SEND FUNCTIONS, TAILORED TO CONTACT
 	# SERVER IP DIRECTLY
-	address = "127.0.0.1"
+	# address = "127.0.0.1"
 	port = 12000
 
 	client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

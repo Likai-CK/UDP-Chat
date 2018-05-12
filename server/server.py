@@ -31,6 +31,7 @@ def main():
 	sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 	
 	output = "Test Output" # this is what the server will output to the clients
+	print(socket.gethostname())
 	print("Online.")
 	while True:
 		try:

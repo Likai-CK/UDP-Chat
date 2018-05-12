@@ -41,6 +41,7 @@ def main():
 		socket.IP_ADD_MEMBERSHIP,
 		mreq)
 
+	print(socket.gethostbyname_ex(socket.gethostname()))
 
 	while True:
 		try:

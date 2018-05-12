@@ -50,10 +50,10 @@ def main():
 	while True:
 		try:
 			message = (username + ">>" + input(username + ">>")).encode()
-			if(message):
-				print("\033[A                             \033[A")    # ansi escape arrow up then overwrite the line
-				client_socket.sendto(message, addr) # send to server
-				message = ""
+			#if(message):
+			#print("\033[A                             \033[A")    # ansi escape arrow up then overwrite the line
+			client_socket.sendto(message, addr) # send to server
+			#message = ""
 			data, address = sock.recvfrom(1024) # receive from multicast groupto', address)
 			#sock.sendto(b'ack', address)
 			print(data.decode())

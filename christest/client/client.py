@@ -33,13 +33,13 @@ class UDPClient(threading.Thread):
         multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
         while True:
-            message = multicastSocket.recv(2048)
+            message = multicastSocket.recv(255)
             print(message.decode())
 
     def listenudp(self, sock):
         clientSocket = sock
         while True:
-            message, address = clientSocket.recvfrom(2048)
+            message, address = clientSocket.recvfrom(255)
             print(message)
 
     def message(self, sock):

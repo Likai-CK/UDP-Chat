@@ -9,25 +9,27 @@ import sys
 import threading
 
 class ThreadedClient(threading.Thread):
-    # THIS PART IS FULLY FUNCTIONING UDP SEND FUNCTIONS, TAILORED TO CONTACT
-    # SERVER IP DIRECTLY
-    # address = "127.0.0.1"
-    address = "127.0.0.1"
-    port = 12000
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    client_socket.settimeout(4.0)
-    addr = (address, port)
-    username = "Lores Ipsum"
 
-    def sendMessage(self):
+
+    def sendMessage(self, username, address, port):
+        # THIS PART IS FULLY FUNCTIONING UDP SEND FUNCTIONS, TAILORED TO CONTACT
+        # SERVER IP DIRECTLY
+        addr = (address, port)
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        client_socket.settimeout(4.0)
+        client_socket.sendto((username + " connects.").encode(), addr) # send to server
         message = ""
         while(True):
             if(message):
-                message = (username + ">>" + input(username + ">>")).encode()
-                sock.sendto(message, addr) # send to server
+                client_socket.sendto(message, addr) # send to server
+                message = ""
+                #print("\033[A                             \033[A")    # ansi escape arrow up then overwrite the line
+            else:
+                 message = (username + ">>" + input()).encode()
+                 
         return False
         #if(message):
-            #print("\033[A                             \033[A")    # ansi escape arrow up then overwrite the line
+            #
 
     def recvMessage(self):
         
@@ -39,7 +41,7 @@ class ThreadedClient(threading.Thread):
 
         # Create the socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(4.0)
+        # sock.settimeout(4.0)
         # Bind to the server address - THIS ISNT NECESSARY ON THE CLIENT!
         sock.bind(server_address)
 
@@ -55,7 +57,7 @@ class ThreadedClient(threading.Thread):
             try:
                 data, address = sock.recvfrom(1024) # receive from multicast groupto', address)
                 if(data):
-                    print(data.decode())
+                    print(data.decode() + "\n")
                     data = ""
             except Exception as e:
                 print("Server Disconnect: " + str(e))
@@ -64,6 +66,7 @@ class ThreadedClient(threading.Thread):
 
     def listen(self):
         address = input("Enter IP/hostname (empty for localhost):\n")
+        port = 12000
         if not address:
             address = "127.0.0.1" # default
 
@@ -73,7 +76,7 @@ class ThreadedClient(threading.Thread):
         
         #print(socket.gethostbyname_ex(socket.gethostname()))
         try:
-            threading.Thread(target = self.sendMessage).start()
+            threading.Thread(target = self.sendMessage, args = (username, address, port)).start()
             #sendMessage(username, client_socket, addr)
             threading.Thread(target = self.recvMessage).start()
             #data, address = recvMessage(sock)

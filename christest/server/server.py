@@ -34,7 +34,7 @@ class UDPServer(threading.Thread):
         serverSocket.bind((self.serverhost, self.serverport))
         print('Server ready to receive messages at address {address}'.format(address = serverSocket.getsockname()))
         while True:
-            message, address = serverSocket.recvfrom(2048)
+            message, address = serverSocket.recvfrom(255)
             self.messagebuffer.put((address, message))
 
     def multicasthandling(self):

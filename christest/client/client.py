@@ -3,7 +3,7 @@ import struct
 import threading
 
 class UDPClient(threading.Thread):
-    def __init__(self, serverhost = '0.0.0.0', serverport = 12000, mcastgroup = '224.1.1.1', mcastport = 5007):
+    def __init__(self, serverhost = '192.168.80.102', serverport = 12000, mcastgroup = '224.1.1.1', mcastport = 5007):
         self.serverhost = serverhost
         self.serverport = serverport
         self.mcastgroup = mcastgroup
@@ -17,21 +17,19 @@ class UDPClient(threading.Thread):
         self.threads.append(listenmulticastThread)
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sockets.append(clientSocket)
-        messageThread = threading.Thread(target = self.message, args = (clientSocket,))
-        messageThread.start()
-        self.threads.append(messageThread)
         listenudpThread = threading.Thread(target = self.listenudp, args = (clientSocket,))
         listenudpThread.start()
         self.threads.append(listenudpThread)
+        messageThread = threading.Thread(target = self.message, args = (clientSocket,))
+        messageThread.start()
+        self.threads.append(messageThread)
 
     def listenmulticast(self):
         multicastSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         multicastSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         multicastSocket.bind((self.mcastgroup, self.mcastport))
         mreq = struct.pack("4sl", socket.inet_aton(self.mcastgroup), socket.INADDR_ANY)
-
         multicastSocket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
         while True:
             message = multicastSocket.recv(2048)
             print(message.decode())
@@ -40,10 +38,12 @@ class UDPClient(threading.Thread):
         clientSocket = sock
         while True:
             message, address = clientSocket.recvfrom(2048)
-            print(message)
+            print(message.decode())
 
     def message(self, sock):
-        clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        clientSocket = sock
+        message = '/hello'.encode()
+        clientSocket.sendto(message, (self.serverhost, self.serverport))
         while True:
             message = input('').encode()
             clientSocket.sendto(message, (self.serverhost, self.serverport))

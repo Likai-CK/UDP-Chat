@@ -44,18 +44,20 @@ class UDPServer(threading.Thread):
             if self.messagebuffer.empty():
                 continue
             item = self.messagebuffer.get()
-            print(item)
             address = item[0]
             message = item[1].decode()
+            if address not in self.aliases:
+                self.aliases[address] = address[0]
             if message[0] == '/':
-                commands = message.lower().split(' ')
+                commands = message.split(' ')
+                commands[0].lower()
                 if commands[0] == '/alias':
                     alias = " ".join(commands[1:])
+                    prevalias = self.aliases[address]
                     self.aliases[address] = alias
-                    print(self.aliases)
-                    modifiedmessage = '{address[0]} aliased to {alias}'.format(address = address, alias = self.aliases[address]).encode()
+                    modifiedmessage = '{prevalias} aliased to {alias}'.format(prevalias = prevalias, alias = self.aliases[address]).encode()
                 elif commands[0] == '/hello':
-                    modifiedmessage = 'Welcome, {address[0]}.  You can find commands /help'.format(address = address).encode()
+                    modifiedmessage = 'Welcome, {alias}.  You can find commands /help'.format(alias = self.aliases[address]).encode()
                 elif commands[0] == '/help':
                     modifiedmessage = ('/alias [alias] : Changes your display name from ip address\n'
                                        '/hello         : Displays the welcome message\n'
@@ -65,10 +67,7 @@ class UDPServer(threading.Thread):
                     modifiedmessage = 'Unrecognized command {commands[0]}'.format(commands = commands).encode()
                 multicastSocket.sendto(modifiedmessage, address)
             else:
-                if address in self.aliases:
-                    modifiedmessage = '<{alias}> : {message}'.format(alias = self.aliases[address], message = message).encode()
-                else:
-                    modifiedmessage = '<{address[0]}> : {message}'.format(address = address, message = message).encode()
+                modifiedmessage = '<{alias}> : {message}'.format(alias = self.aliases[address], message = message).encode()
                 multicastSocket.sendto(modifiedmessage, (self.mcastgroup, self.mcastport))
 
 if __name__ == '__main__':

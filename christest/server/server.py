@@ -34,7 +34,7 @@ class UDPServer(threading.Thread):
         serverSocket.bind((self.serverhost, self.serverport))
         print('Server ready to receive messages at address {address}'.format(address = serverSocket.getsockname()))
         while True:
-            message, address = serverSocket.recvfrom(2048)
+            message, address = serverSocket.recvfrom(255)
             self.messagebuffer.put((address, message))
 
     def multicasthandling(self):
@@ -59,7 +59,7 @@ class UDPServer(threading.Thread):
                 elif commands[0] == '/hello':
                     modifiedmessage = 'Welcome, {alias}.  You can find commands /help'.format(alias = self.aliases[address]).encode()
                 elif commands[0] == '/help':
-                    modifiedmessage = ('/alias [alias] : Changes your display name from ip address\n/hello         : Displays the welcome message\n/help          : Displays available commands').encode()
+                    modifiedmessage = ('/alias [alias] : Changes your display name from ip address\n/hello          : Displays the welcome message\n/help           : Displays available commands').encode()
                 else:
                     modifiedmessage = 'Unrecognized command {commands[0]}'.format(commands = commands).encode()
                 multicastSocket.sendto(modifiedmessage, address)

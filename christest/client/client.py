@@ -22,7 +22,7 @@ class UDPClient(threading.Thread):
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         clientSocket.settimeout(0.2)
 
-        self.top.title("Chatter")
+        self.top.title("Chat Client")
         messages_frame = tkinter.Frame(self.top)
         self.inputmessage = tkinter.StringVar()
         #self.inputmessage.set("Message server")
